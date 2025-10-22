@@ -6,16 +6,17 @@
 
     /* ==== Target Environment ==== */
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "ESNext",                     // Updated for modern Node + ESM
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
+    "resolveJsonModule": true,              // Enable importing JSON files
 
     /* ==== Type Checking ==== */
     "strict": true,
     "noImplicitAny": true,
     "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                   // Prevent library type conflicts
 
     /* ==== Node Support ==== */
     "types": ["node"],
