@@ -1,6 +1,6 @@
 // src/components/MainDash.tsx
 import Dashboard from "../assets/Dashboard.png";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,12 +23,20 @@ export default function MainDash() {
   const [loading, setLoading] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({}); 
 
+  const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"; //download video button//
+
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("MainDash must be used within an AuthProvider");
   const { user, logout, loading: authLoading } = auth;
 
-  // Show a loader until AuthContext finishes initializing
-  if (authLoading) {
+  // ✅ Unified loading + redirect check
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/login");
+    }
+  }, [authLoading, user, navigate]);
+
+  if (authLoading || !user) {
     return (
       <div className="flex items-center justify-center w-full h-screen text-white">
         Loading user info...
@@ -36,29 +44,12 @@ export default function MainDash() {
     );
   }
 
-
-    // ✅ Handle redirect safely
-    useEffect(() => {
-      if (!authLoading && !user) {
-        navigate("/login");
-      }
-    }, [authLoading, user, navigate]);
-
-    // Show loader while AuthContext is loading
-    if (authLoading || !user) {
-      return (
-        <div className="flex items-center justify-center w-full h-screen text-white">
-          Loading user info...
-        </div>
-      );
-    }
-
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  const fetchAllLinks = async (): Promise<LinkResponse[]> => {
+  const fetchAllLinks = useCallback(async (): Promise<LinkResponse[]> => {
     try {
       const allLinks = await getLinksAPI();
       const updatedLinks = allLinks.map((link) => ({
@@ -71,8 +62,9 @@ export default function MainDash() {
       console.error("Failed to fetch links:", err);
       return [];
     }
-  };
+  }, []);
 
+  // ✅ Throttled interval for progress updates
   useEffect(() => {
     const interval = setInterval(async () => {
       const hasPending = fetchedVideos.some((v) => v.status === "pending");
@@ -92,9 +84,9 @@ export default function MainDash() {
           return newProgress;
         });
       }
-    }, 500);
+    }, 1000); // 1 second for production
     return () => clearInterval(interval);
-  }, [fetchedVideos]);
+  }, [fetchedVideos, fetchAllLinks]);
 
   const handleFetchVideos = async () => {
     if (!link.trim()) return alert("Please paste a valid video link!");
@@ -121,6 +113,7 @@ export default function MainDash() {
       prev.map((v) => (v._id === id ? { ...v, selectedQuality: quality } : v))
     );
   };
+
   return (
     <div
       className="flex flex-col w-full min-h-screen bg-cover bg-center bg-fixed p-1 sm:p-4"
@@ -131,7 +124,6 @@ export default function MainDash() {
         <a href="#">
           <img src={Logo} alt="Logo" className="w-30 sm:w-40" />
         </a>
-
         <div className="relative">
           <button
             onClick={() => setModel(!model)}
@@ -151,9 +143,8 @@ export default function MainDash() {
               >
                 <div className="flex flex-col items-center gap-2 border-b border-[#2E4657] pb-3">
                   <FaRegUserCircle className="text-4xl text-[#EE6767]" />
-                 <p className="text-base font-semibold">{user?.name || "Guest User"}</p>
+                  <p className="text-base font-semibold">{user?.name || "Guest User"}</p>
                   <p className="text-xs text-gray-400">{user?.email || "No email available"}</p>
-
                 </div>
 
                 <button
@@ -276,9 +267,11 @@ export default function MainDash() {
                     )}
 
                     <button
-                      onClick={() =>
-                        window.open(`${import.meta.env.VITE_API_URL}${video.downloadUrl}`, "_blank")
-                      }
+                      onClick={() => {
+                        if (!video.downloadUrl) return;
+                        const url = `${apiBaseUrl}${video.downloadUrl}`;
+                        window.open(url, "_blank");
+                      }}
                       disabled={video.status !== "ready"}
                       className={`flex items-center text-white gap-2 px-5 py-2 rounded-lg text-sm font-semibold w-full justify-center ${
                         video.status === "ready"
@@ -288,7 +281,7 @@ export default function MainDash() {
                     >
                       <GrCloudDownload className="text-lg" />
                       {video.status === "ready" ? "Download" : `${progressMap[video._id] || 0}%`}
-                    </button>
+                  </button>
                   </motion.div>
                 ))}
               </motion.div>
