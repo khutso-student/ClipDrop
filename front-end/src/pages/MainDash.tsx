@@ -273,7 +273,7 @@ export default function MainDash() {
                         window.open(url, "_blank");
                       }}
                       disabled={video.status !== "ready"}
-                      className={`flex items-center text-white gap-2 px-5 py-2 rounded-lg text-sm font-semibold w-full justify-center ${
+                      className={`flex items-center text-white gap-2 px-5 py-2 rounded-lg cursor-pointer text-sm font-semibold w-full justify-center ${
                         video.status === "ready"
                           ? "bg-gradient-to-r from-[#EE6767] to-[#E84949] hover:opacity-90"
                           : "bg-gray-700 cursor-not-allowed"
