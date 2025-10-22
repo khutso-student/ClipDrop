@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
-// Extend Request interface to include `user`
+// ✅ Extend Express Request type to include 'user'
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: string; role: string };
+      user?: {
+        id: string;
+        role?: string;
+      };
     }
   }
 }
@@ -13,24 +16,30 @@ declare global {
 // ============================
 // @desc   Protect Routes (Require Token)
 // ============================
-export const protect = (req: Request, res: Response, next: NextFunction) => {
-  const auth = req.headers.authorization;
+export const protect = (req: Request, res: Response, next: NextFunction): void => {
+  const authHeader = req.headers.authorization;
 
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "No token provided" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ message: "No token provided" });
+    return;
   }
 
-  const token = auth.split(" ")[1];
+  const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      id: string;
-      role: string;
-    };
-    req.user = decoded; // decoded contains user id + role
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+
+    // ✅ Check if decoded contains an id
+    if (typeof decoded === "object" && "id" in decoded) {
+      req.user = {
+        id: decoded.id as string,
+        role: (decoded as any).role || "user",
+      };
+    }
+
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid or expired token" });
+    res.status(403).json({ message: "Invalid or expired token" });
   }
 };
 
@@ -38,10 +47,12 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 // @desc   Role Authorization
 // ============================
 export const authorize = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Forbidden: Access denied" });
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user || !roles.includes(req.user.role || "")) {
+      res.status(403).json({ message: "Forbidden: Access denied" });
+      return;
     }
+
     next();
   };
 };

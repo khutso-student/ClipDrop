@@ -4,12 +4,11 @@
   "description": "Backend API for ClipDrop",
   "type": "module",
   "main": "dist/server.js",
-"scripts": {
-  "dev": "cross-env NODE_ENV=development node --loader ts-node/esm src/server.ts",
-  "build": "tsc",
-  "start": "npm run build && cross-env NODE_ENV=production node dist/server.js"
-},
-
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development node --loader ts-node/esm src/server.ts",
+    "build": "tsc",
+    "start": "npm run build && cross-env NODE_ENV=production node dist/server.js"
+  },
   "author": "Khutso Makunyane",
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",
@@ -17,7 +16,7 @@
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv-flow": "^4.1.0",
-    "express": "^5.1.0",
+    "express": "4.19.2",
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
