@@ -170,12 +170,24 @@ export const resetPassword = async (
  * @desc Get User by ID
  * @route GET /api/users/:id
  */
+
 export const getUserById = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    let userId = req.params.id;
+
+    // If "me", get the authenticated user's ID from the middleware
+    if (userId === "me") {
+      if (!req.user || !req.user.id) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      userId = req.user.id;
+    }
+
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -189,3 +201,25 @@ export const getUserById = async (
       .json({ message: "Failed to fetch user", error: error.message });
   }
 };
+
+export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // req.user should be set by your auth middleware
+    if (!req.user || !req.user.id) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    console.error("Get Current User Error:", error.message);
+    res.status(500).json({ message: "Failed to fetch user", error: error.message });
+  }
+};
+

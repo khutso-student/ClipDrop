@@ -4,12 +4,12 @@
   "description": "Backend API for ClipDrop",
   "type": "module",
   "main": "dist/server.js",
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development node --loader ts-node/esm src/server.ts",
-    "build": "tsc",
-    "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+"scripts": {
+  "dev": "cross-env NODE_ENV=development node --loader ts-node/esm src/server.ts",
+  "build": "tsc",
+  "start": "npm run build && cross-env NODE_ENV=production node dist/server.js"
+},
+
   "author": "Khutso Makunyane",
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",

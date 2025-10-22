@@ -19,5 +19,5 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
 
   if (loading) return <div>Loading...</div>; // show spinner or placeholder
 
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  return user ? <>{children}</> : <Navigate to="/" replace />;
 }

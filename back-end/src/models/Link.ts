@@ -6,6 +6,8 @@ export interface ILink extends Document {
   originalUrl: string;
   downloadUrl?: string;
   title?: string;
+  thumbnail?: string;      // ✅ added
+  qualities?: string[];    // ✅ added
   format?: string;
   status: "pending" | "ready" | "failed";
   owner: mongoose.Types.ObjectId;
@@ -18,6 +20,8 @@ const linkSchema = new Schema<ILink>(
     originalUrl: { type: String, required: true },
     downloadUrl: { type: String },
     title: { type: String },
+    thumbnail: { type: String },      // ✅ added
+    qualities: { type: [String] },    // ✅ added
     format: { type: String },
     status: { type: String, enum: ["pending", "ready", "failed"], default: "pending" },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

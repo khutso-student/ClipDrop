@@ -1,4 +1,3 @@
-// src/api/api.ts
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -41,5 +40,13 @@ export const forgotPassword = async (data: { email: string }) => {
 
 export const resetPassword = async (data: { token: string; password: string }) => {
   const res = await api.post("/users/reset-password", data);
+  return res.data;
+};
+
+// ============================
+// Get current logged-in user
+// ============================
+export const getCurrentUser = async (): Promise<{ id: string; name: string; email: string; role: string }> => {
+  const res = await api.get("/users/me"); // backend route returns current user
   return res.data;
 };

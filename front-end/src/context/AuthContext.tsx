@@ -2,7 +2,7 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
 import * as api from "../services/api";
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -29,12 +29,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore user from localStorage
-  useEffect(() => {
+  // Restore user from localStorage and fetch real data from backend
+useEffect(() => {
+  const initializeUser = async () => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
+    if (savedUser) {
+      try {
+        const parsedUser: User = JSON.parse(savedUser);
+        if (!parsedUser.token) throw new Error("No token found");
+
+        // ✅ Just call getCurrentUser without arguments
+        const verifiedUser = await api.getCurrentUser();
+
+        setUser({ ...verifiedUser, token: parsedUser.token });
+      } catch (error) {
+        console.error("Failed to fetch user from token:", error);
+        localStorage.removeItem("user");
+        setUser(null);
+      }
+    }
     setLoading(false);
-  }, []);
+  };
+
+  initializeUser();
+}, []);
+
 
   const login = (userData: Omit<User, "token">, token: string) => {
     const userWithToken: User = { ...userData, token };
@@ -47,7 +66,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(null);
   };
 
-  // Send forgot password request
   const forgotPassword = async (email: string) => {
     try {
       await api.forgotPassword({ email });
@@ -58,7 +76,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Reset password using token
   const resetPassword = async (token: string, password: string) => {
     try {
       await api.resetPassword({ token, password });
