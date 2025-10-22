@@ -1,20 +1,59 @@
-# Node modules
+# ===============================
+# General
+# ===============================
 node_modules/
-back-end/node_modules/
-front-end/node_modules/
-
-# Build output
 dist/
 build/
-
-# Environment files
-*.env
-*.env.production
-
-# Downloads / temp files
-back-end/downloads/
-*.tmp
-*.part
-
-# Logs
+.env
+.env.*
+!.env.example
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================
+# Editor / OS
+# ===============================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ===============================
+# TypeScript
+# ===============================
+*.tsbuildinfo
+
+# ===============================
+# Frontend (Vite + React)
+# ===============================
+front-end/node_modules/
+front-end/dist/
+front-end/.vite/
+front-end/.env.local
+front-end/.env.production
+front-end/.env.development
+
+# ===============================
+# Backend (Express + TS)
+# ===============================
+back-end/node_modules/
+back-end/dist/
+back-end/build/
+back-end/.env
+back-end/.env.local
+back-end/.env.production
+back-end/.env.development
+back-end/downloads/
+back-end/uploads/
+back-end/tmp/
+back-end/mintty*.png
+
+# ===============================
+# Miscellaneous
+# ===============================
+allfiles.txt
+*.sqlite
+*.db
