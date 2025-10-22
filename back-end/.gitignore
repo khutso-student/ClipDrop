@@ -1,24 +1,20 @@
 # Node modules
-node_modules
-back-end/node_modules
-front-end/node_modules
+node_modules/
+back-end/node_modules/
+front-end/node_modules/
 
 # Build output
-dist
-build
+dist/
+build/
 
 # Environment files
-.env
-.env.*
+*.env
+*.env.production
+
+# Downloads / temp files
+back-end/downloads/
+*.tmp
+*.part
 
 # Logs
-logs
 *.log
-
-# Temporary files
-temp
-tmp
-uploads
-.cache
-.DS_Store
-  
